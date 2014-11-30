@@ -1,8 +1,8 @@
 package announcemobdeaths;
 
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Tameable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
@@ -17,34 +17,34 @@ public class AnnounceMobDeaths extends JavaPlugin implements Listener {
 
 	@EventHandler
 	public void onEntityDeath(EntityDeathEvent event) {
-		if (event.getEntity() instanceof Player) {
-			return;
-		}
-		
-		if (event.getEntity() instanceof Monster && event.getEntity().getCustomName() == null) {
-			return;
-		}
-		
 		LivingEntity entity = event.getEntity();
-		if (entity.getKiller() instanceof Player) {
-			Player player = entity.getKiller();
-			String message = "";
-			String entityName = entity.getType().toString().substring(0, 1).toUpperCase() + entity.getType().toString().substring(1).toLowerCase();
-
-			if (entity.getCustomName() == null) {
-				if (entityName.toLowerCase().charAt(0) == 'a'
-						|| entityName.toLowerCase().charAt(0) == 'e'
-						|| entityName.toLowerCase().charAt(0) == 'i'
-						|| entityName.toLowerCase().charAt(0) == 'o'
-						|| entityName.toLowerCase().charAt(0) == 'u'
-						|| entityName.toLowerCase().charAt(0) == 'y') {
-					message = player.getDisplayName() + " killed an " + entityName + ".";
+		Player killer = entity.getKiller();
+		String entityType = entity.getType().toString().substring(0, 1).toUpperCase() + entity.getType().toString().substring(1).toLowerCase();
+		entityType = entityType.replace('_', ' ');
+		
+		if (entity instanceof Player || killer == null) {
+			return;
+		}
+		
+		if (entity instanceof Tameable) {
+			Tameable tameable = (Tameable) entity;
+			
+			if (tameable.getOwner() != null) {
+				Player owner = (Player) tameable.getOwner();
+				
+				if (entity.getCustomName() == null) {
+					getServer().broadcastMessage(killer.getDisplayName() + " killed " + owner.getDisplayName() + "'s " + entityType + ".");
 				} else {
-					message = player.getDisplayName() + " killed a " + entityName + ".";
+					getServer().broadcastMessage(killer.getDisplayName() + " killed " + entity.getCustomName() + ", " + owner.getDisplayName() + "'s " + entityType + ".");
 				}
-			} else {
-				message = player.getDisplayName() + " killed " + entity.getCustomName() + " the " + entityName + ".";
+				
+				return;
 			}
+		}
+		
+		if (entity.getCustomName() != null) {
+
+			String message = killer.getDisplayName() + " killed " + entity.getCustomName() + " the " + entityType + ".";
 
 			getServer().broadcastMessage(message);
 		}
