@@ -19,6 +19,8 @@ public class AnnounceMobDeaths extends JavaPlugin implements Listener {
 	public void onEntityDeath(EntityDeathEvent event) {
 		LivingEntity entity = event.getEntity();
 		Player killer = entity.getKiller();
+		
+		// Capitalize first letter of mob type and replace underscores with spaces.
 		String entityType = entity.getType().toString().substring(0, 1).toUpperCase() + entity.getType().toString().substring(1).toLowerCase();
 		entityType = entityType.replace('_', ' ');
 		
@@ -30,12 +32,12 @@ public class AnnounceMobDeaths extends JavaPlugin implements Listener {
 			Tameable tameable = (Tameable) entity;
 			
 			if (tameable.getOwner() != null) {
-				Player owner = (Player) tameable.getOwner();
+				String owner = tameable.getOwner().getName();
 				
 				if (entity.getCustomName() == null) {
-					getServer().broadcastMessage(killer.getDisplayName() + " killed " + owner.getDisplayName() + "'s " + entityType + ".");
+					getServer().broadcastMessage(killer.getDisplayName() + " killed " + owner + "'s " + entityType + ".");
 				} else {
-					getServer().broadcastMessage(killer.getDisplayName() + " killed " + entity.getCustomName() + ", " + owner.getDisplayName() + "'s " + entityType + ".");
+					getServer().broadcastMessage(killer.getDisplayName() + " killed " + entity.getCustomName() + ", " + owner + "'s " + entityType + ".");
 				}
 				
 				return;
@@ -43,7 +45,6 @@ public class AnnounceMobDeaths extends JavaPlugin implements Listener {
 		}
 		
 		if (entity.getCustomName() != null) {
-
 			String message = killer.getDisplayName() + " killed " + entity.getCustomName() + " the " + entityType + ".";
 
 			getServer().broadcastMessage(message);
